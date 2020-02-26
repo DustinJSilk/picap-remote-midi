@@ -1,25 +1,37 @@
-import { MidiServerApi } from 'src/services/midi_server_api';
+import { MidiServerApi, TouchType } from 'src/services/midi_server_api';
 import { logger } from '@shared';
 import { fork } from 'child_process';
-
-export enum TouchType {
-  TOUCH = 'touch',
-  RELEASE = 'release',
-}
+import path from 'path';
+import os from 'os';
 
 export class PiController {
-  private midiServer = new MidiServerApi('pi_1');
+  private midiServer = new MidiServerApi();
 
   constructor() {
     logger.log('info', 'Starting pi controller');
 
     this.midiServer.findMidiServer();
+    this.launchTouchControllerProcess();
+  }
 
-    /** TODO: Launch again if it ever crashes. */
-    const child = fork('../subprocess_touch/index.js', [], {
-      execPath : '/home/pi/.nvm/versions/node/v6.7.0/bin/node',
+  /** Event when a touch is registered. */
+  private onTouch(index: number, type: TouchType) {
+    this.midiServer.sendMessage(index, type);
+  }
+
+  /**
+   * Launches a child process that runs Node v9 to handle the touch board which
+   * isn't supported in modern versions of node.
+   *
+   * TODO: Launch again if it ever crashes.
+   */
+  private launchTouchControllerProcess() {
+    const execPath = path.resolve(os.homedir(), '.nvm/versions/node/v6.7.0/bin/node');
+
+    const child = fork('./../subprocess_touch/index.js', [], {
+      execPath,
       cwd: __dirname,
-      silent: true,
+      silent: false,
     });
 
     if (child.stdout) {
@@ -32,10 +44,7 @@ export class PiController {
     }
   }
 
-  private onTouch(index: number, type: TouchType) {
-    this.midiServer.sendMessage(index, type);
-  }
-
+  /** JSONify touch messages from the subprocess. */
   private processTouchMessage(message: string): {i: number, t: TouchType}|null {
     try {
       const data = JSON.parse(message);

@@ -9,6 +9,7 @@ export declare interface ConfigFile {
 export declare interface ControllerConfig {
   name: string;
   type: string;
+  midiName: string;
 }
 
 export declare interface ServerConfig {

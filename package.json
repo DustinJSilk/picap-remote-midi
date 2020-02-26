@@ -6,10 +6,10 @@
     "lint": "tslint --project \"tsconfig.json\"",
     "start": "node -r module-alias/register ./dist",
     "start:dev:server": "nodemon --config nodemon.json --config_file=midi_server",
-    "start:dev:pi:1": "nodemon --config nodemon.json config_file=pi_1",
-    "start:dev:pi:2": "nodemon --config nodemon.json config_file=pi_2",
-    "start:dev:pi:3": "nodemon --config nodemon.json config_file=pi_3",
-    "start:dev:pi:4": "nodemon --config nodemon.json config_file=pi_4",
+    "start:dev:pi:1": "nodemon --config nodemon.json --config_file=pi_1",
+    "start:dev:pi:2": "nodemon --config nodemon.json --config_file=pi_2",
+    "start:dev:pi:3": "nodemon --config nodemon.json --config_file=pi_3",
+    "start:dev:pi:4": "nodemon --config nodemon.json --config_file=pi_4",
     "test": "nodemon --config nodemon.test.json"
   },
   "_moduleAliases": {
@@ -30,8 +30,10 @@
     "module-alias": "^2.2.2",
     "morgan": "^1.9.1",
     "network-list": "^1.1.5",
+    "rxjs": "^6.5.4",
     "socket.io": "^2.3.0",
     "socket.io-client": "^2.3.0",
+    "ts-debounce": "^2.0.1",
     "winston": "^3.2.1"
   },
   "devDependencies": {

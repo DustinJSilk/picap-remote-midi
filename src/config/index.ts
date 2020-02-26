@@ -24,4 +24,4 @@ const midiConfig = options.config_file === 'midi_server' ?
 const serverConfig = midiConfig.server as ServerConfig;
 
 export default config;
-export { serverConfig }
+export { config, serverConfig }

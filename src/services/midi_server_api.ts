@@ -2,13 +2,25 @@ import netList from 'network-list';
 import isReachable from 'is-reachable';
 import { logger } from '@shared';
 import io from 'socket.io-client';
-import { serverConfig } from '../config';
+import { debounce } from 'ts-debounce';
+import { serverConfig, config } from '../config';
 
 /** Partial interface of the network-list device type. */
 export declare interface NetworkDevice {
   ip: string;
   hostname: string|null;
   mac: string|null;
+}
+
+export enum TouchType {
+  TOUCH = 'touch',
+  RELEASE = 'release',
+}
+
+export declare interface PiMessage {
+  id: string;
+  index: number;
+  type: TouchType;
 }
 
 /**
@@ -22,6 +34,8 @@ export const KNOWN_IPS: string[] = [
 
 /** Known MAC addresses to search through first. */
 export const KNOWN_MACS: string[] = [];
+
+export const DEBOUNCE_TIME = 100;
 
 /**
  * TODO: Reconnect if connection is lost.
@@ -37,17 +51,21 @@ export class MidiServerApi {
   /** The socket connection. */
   private io: SocketIOClient.Socket;
 
-  constructor(private pID: string) {}
+  // Debounce sending messages.
+  private debouncedSend = debounce(this.send.bind(this), DEBOUNCE_TIME);
 
-  /** TODO: throttle so no one can overload the server. */
   sendMessage(index: number, type: string) {
     if (this.isConnected) {
-      this.io.emit('midi', JSON.stringify({
-        id: this.pID,
+      this.debouncedSend({
+        id: config.controller.name,
         index,
         type,
-      }));
+      } as PiMessage);
     }
+  }
+
+  private send(message: any) {
+    this.io.emit('midi', JSON.stringify(message));
   }
 
   /**

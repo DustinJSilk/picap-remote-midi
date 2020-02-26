@@ -4,6 +4,7 @@
   "HOST": "localhost",
   "controller": {
     "name": "pi_1",
-    "type": "pi"
+    "type": "pi",
+    "midiName": "Pi Drum 1"
   }
 }

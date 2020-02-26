@@ -1,14 +1,13 @@
 import { logger } from '@shared';
 import { OK } from 'http-status-codes';
 import { Request, Response, Router, Express } from 'express';
-import { Output } from 'easymidi';
 import { serverConfig } from '../config';
+import { PiHandler } from 'src/midi_handlers/pi_base';
 
 export class MidiServerController {
   private router = Router();
 
-  /** TODO: Add easymidi types. */
-  private controllers: {output: any, id: string}[] = [];
+  private handlers: {handler: PiHandler, name: string}[] = [];
 
   constructor(private app: Express, private io: SocketIO.Server) {
     logger.log('info', 'Starting MIDI Server controller');
@@ -27,27 +26,21 @@ export class MidiServerController {
 
   private onMidiMessage(message: string) {
     const data = JSON.parse(message);
-    const output = this.getMidiOutput(data.id);
-
-    output.send('cc', {
-      controller: data.index,
-      value: 10,
-      channel: 0,
-    });
+    const handler = this.getHandler(data.id);
+    handler.onMessage(data);
   }
 
-  private getMidiOutput(id: string) {
-    let controller = this.controllers.find((c) => c.id === id);
+  /** Returns the class that manages the events. */
+  private getHandler(name: string) {
+    let item = this.handlers.find((c) => c.name === name);
 
-    if (!controller) {
-      const output = new Output(id, true);
-      controller = {output, id};
-      this.controllers.push(controller);
-
-      // Close the MIDI output when the app quits.
-      process.on('SIGTERM', () => output.close());
+    if (!item) {
+      const Pi = require(`../midi_handlers/${name}.ts`);
+      const handler = new Pi(name, true);
+      item = {handler, name};
+      this.handlers.push(item);
     }
 
-    return controller.output;
+    return item.handler;
   }
 }

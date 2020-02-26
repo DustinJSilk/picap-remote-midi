@@ -1,9 +1,9 @@
 import netList from 'network-list';
-import isReachable from 'is-reachable';
 import { logger } from '@shared';
 import io from 'socket.io-client';
 import { debounce } from 'ts-debounce';
 import { serverConfig, config } from '../config';
+import fetch from 'node-fetch';
 
 /** Partial interface of the network-list device type. */
 export declare interface NetworkDevice {
@@ -124,17 +124,19 @@ export class MidiServerApi {
 
   /** Pings a list of devices for a successful response. */
   private async findReachableServer(devices: NetworkDevice[]): Promise<NetworkDevice|void> {
-    try {
-      for (const device of devices) {
-        const enpoint =
-            `${device.ip}:${serverConfig.expressPort}${serverConfig.pingPath}`;
-        const foundServer = await isReachable(enpoint);
-        if (foundServer) {
+    for (const device of devices) {
+      const endpoint =
+          `http://${device.ip}:${serverConfig.expressPort}${serverConfig.pingPath}`;
+
+      try {
+        const res = await fetch(endpoint, {timeout: 50});
+
+        if (res.ok) {
           return device;
         }
+      } catch(err) {
+        console.log('No server found at ip: ', device.ip);
       }
-    } catch (err) {
-      throw new Error('No server found');
     }
   }
 

@@ -4,6 +4,8 @@
  * Documentation: https://github.com/winstonjs/winston
  */
 
+ import config from '../config';
+
 import { createLogger, format, transports } from 'winston';
 
 // Import Functions
@@ -19,7 +21,7 @@ const winstonLogger = createLogger({
  * to `combined.log. Write all logs error (and below) to `error.log`.
  * For development, print to the console.
  */
-if (process.env.NODE_ENV === 'production') {
+if (config.NODE_ENV === 'production') {
   const fileFormat = format.combine(
     format.timestamp(),
     format.json(),

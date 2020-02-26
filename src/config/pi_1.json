@@ -1,0 +1,9 @@
+{
+  "NODE_ENV": "development",
+  "PORT": 8081,
+  "HOST": "localhost",
+  "controller": {
+    "name": "pi_1",
+    "type": "pi"
+  }
+}

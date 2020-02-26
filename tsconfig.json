@@ -12,6 +12,7 @@
     "strict": true,
     "target": "es6",
     "moduleResolution": "node",
+    "resolveJsonModule": true,
     // Too lazy to manually add new d.ts files.
     "noImplicitAny": false,
     "strictPropertyInitialization": false,

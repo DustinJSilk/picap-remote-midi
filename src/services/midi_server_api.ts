@@ -2,7 +2,7 @@ import netList from 'network-list';
 import isReachable from 'is-reachable';
 import { logger } from '@shared';
 import io from 'socket.io-client';
-import { EXPRESS_PORT, SOCKET_PORT, PING_PATH } from '../controllers/midi_server_controller';
+import { serverConfig } from '../config';
 
 /** Partial interface of the network-list device type. */
 export declare interface NetworkDevice {
@@ -11,8 +11,16 @@ export declare interface NetworkDevice {
   mac: string|null;
 }
 
-export const KNOWN_IPS: string[] = ['10.69.100.66'];
+/**
+ * Add any known IPs here to search through. Useful when using multiple
+ * development environments, devices, or networks.
+ */
+export const KNOWN_IPS: string[] = [
+  serverConfig.ipAddress,
+  '10.69.100.66',
+];
 
+/** Known MAC addresses to search through first. */
 export const KNOWN_MACS: string[] = [];
 
 /**
@@ -31,6 +39,7 @@ export class MidiServerApi {
 
   constructor(private pID: string) {}
 
+  /** TODO: throttle so no one can overload the server. */
   sendMessage(index: number, type: string) {
     if (this.isConnected) {
       this.io.emit('midi', JSON.stringify({
@@ -76,7 +85,7 @@ export class MidiServerApi {
   private connect(): Promise<void> {
     return new Promise((resolve, reject) => {
       logger.log('info', 'Connecting to MIDI server');
-      this.io = io(`http://${this.ipAddress}:${SOCKET_PORT}`);
+      this.io = io(`http://${this.ipAddress}:${serverConfig.socketPort}`);
 
       this.io.on('connect', socket => {
         logger.log('info', 'Connected to MIDI server');
@@ -103,7 +112,9 @@ export class MidiServerApi {
   private async findReachableServer(devices: NetworkDevice[]): Promise<NetworkDevice|void> {
     try {
       for (const device of devices) {
-        const foundServer = await isReachable(`${device.ip}:${EXPRESS_PORT}${PING_PATH}`);
+        const enpoint =
+            `${device.ip}:${serverConfig.expressPort}${serverConfig.pingPath}`;
+        const foundServer = await isReachable(enpoint);
         if (foundServer) {
           return device;
         }

@@ -15,6 +15,7 @@ export class PiController {
 
     this.midiServer.findMidiServer();
 
+    /** TODO: Launch again if it ever crashes. */
     const child = fork('../subprocess_touch/index.js', [], {
       execPath : '/home/pi/.nvm/versions/node/v6.7.0/bin/node',
       cwd: __dirname,

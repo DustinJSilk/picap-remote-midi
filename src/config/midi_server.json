@@ -1,0 +1,15 @@
+{
+  "NODE_ENV": "development",
+  "PORT": 8080,
+  "HOST": "localhost",
+  "controller": {
+    "name": "midi_server",
+    "type": "midi_server"
+  },
+  "server": {
+    "socketPort": 9000,
+    "expressPort": 8080,
+    "pingPath": "/api/midi_server/ping",
+    "ipAddress": "192.168.1.10"
+  }
+}

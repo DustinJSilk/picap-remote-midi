@@ -35,7 +35,7 @@ export class MidiServerController {
     let item = this.handlers.find((c) => c.name === name);
 
     if (!item) {
-      const Pi = require(`../midi_handlers/${name}.ts`);
+      const Pi = require(`../midi_handlers/${name}.ts`).default;
       const handler = new Pi(name, true);
       item = {handler, name};
       this.handlers.push(item);

@@ -37,10 +37,6 @@ export const KNOWN_MACS: string[] = [];
 
 export const DEBOUNCE_TIME = 100;
 
-/**
- * TODO: Reconnect if connection is lost.
- * TODO: Add dev mode delay when connecting.
- */
 export class MidiServerApi {
   /** IP Address of the MIDI server. */
   private ipAddress: string;

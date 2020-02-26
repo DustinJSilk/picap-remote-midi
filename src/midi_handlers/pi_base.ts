@@ -1,27 +1,25 @@
 import { ConfigFile } from 'src/config/typings';
 import { Output } from 'easymidi';
-import { Subject, from } from 'rxjs';
-import { map, delay, mergeMap, tap } from 'rxjs/operators';
+import { Subject } from 'rxjs';
+import { delay, tap } from 'rxjs/operators';
 
 export class PiBase {
   protected output = new Output(this.config.controller.midiName, true);
 
   private noteQueue = new Subject<number>();
 
-  constructor(private config: ConfigFile) {
+  constructor(protected config: ConfigFile) {
     // Close the MIDI output when the app quits.
     process.on('SIGTERM', () => this.output.close());
 
     this.noteQueue.pipe(
-        mergeMap(note => from(() => this.sendNoteOn(note))),
-        tap(() => console.log('Pre delay')),
-        delay(50),
-        tap(() => console.log('Post delay')),
-        map((note: number) => this.sendNoteOff(note)),
+        tap(note => this.sendNoteOn(note)),
+        delay(10),
+        tap(note => this.sendNoteOff(note)),
       ).subscribe();
   }
 
-  protected queueNote(note: number) {
+  protected sendNote(note: number) {
     this.noteQueue.next(note);
   }
 

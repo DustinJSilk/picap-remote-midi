@@ -31,7 +31,7 @@ export class PiController {
     const child = fork('./../subprocess_touch/index.js', [], {
       execPath,
       cwd: __dirname,
-      silent: false,
+      silent: true,
     });
 
     if (child.stdout) {

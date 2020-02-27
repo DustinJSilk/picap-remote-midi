@@ -15,6 +15,10 @@ const DEVICE = 'server-control';
 export class HueBridge {
   private lights = {}
 
+  private ip$ = this.getIpAddress().pipe(shareReplay(1));
+  private user$ = this.getUser().pipe(shareReplay(1));
+  private api$ = this.getApi().pipe(shareReplay(1));
+
   /**
    * Set the RGB color of the light.
    *
@@ -44,7 +48,7 @@ export class HueBridge {
 
   /** Sets the state of a light. */
   private setLightState(name: string, state) {
-    return combineLatest(this.getApi(), this.getLightId(name)).pipe(
+    return combineLatest(this.api$, this.getLightId(name)).pipe(
       mergeMap(res => res[0].lights.setLightState(res[1], state))
     );
   }
@@ -55,7 +59,7 @@ export class HueBridge {
       return of(this.lights[name]);
     }
 
-    return this.getApi().pipe(
+    return this.api$.pipe(
       mergeMap(api => api.lights.getLightByName(name)),
     );
   }
@@ -81,7 +85,7 @@ export class HueBridge {
       return of(hueConfig.user);
     }
 
-    return this.getIpAddress().pipe(
+    return this.ip$.pipe(
       mergeMap(ip => from(hueApi.createLocal(ip).connect())),
       mergeMap(unauthedApi => from(unauthedApi.users.createUser(APP, DEVICE))),
       tap(user => {
@@ -100,7 +104,7 @@ export class HueBridge {
 
   /** Creates an API tunnel with the bridge. */
   private getApi() {
-    return combineLatest(this.getIpAddress(), this.getUser()).pipe(
+    return combineLatest(this.ip$, this.user$).pipe(
       mergeMap(res => from(hueApi.createLocal(res[0]).connect(res[1].username))),
     );
   }

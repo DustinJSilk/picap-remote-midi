@@ -19,7 +19,7 @@ export default class Pi extends PiBase implements PiHandler {
     if (timeDiff > 100) {
       this.sendNote(data.index);
 
-      const hue = data.index / 10;
+      const hue = data.index / 11;
       this.light.setHue(hue);
     }
   }

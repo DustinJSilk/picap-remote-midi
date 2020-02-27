@@ -1,12 +1,13 @@
 import { ConfigFile } from 'src/config/typings';
-import { Output } from 'easymidi';
+import { Output, getOutputs } from 'easymidi';
 import { Subject } from 'rxjs';
 import { delay, tap } from 'rxjs/operators';
+import os from 'os';
 
 export class PiBase {
-  protected output = new Output(this.config.controller.midiName, true);
-
   private noteQueue = new Subject<number>();
+
+  private output = this.getPlatformMidiOutput();
 
   constructor(protected config: ConfigFile) {
     // Close the MIDI output when the app quits.
@@ -37,6 +38,33 @@ export class PiBase {
       velocity: 127,
       channel: 0,
     });
+  }
+
+  /**
+   * Returns a virtual midi output for macs. Windows requires named loopMIDI
+   * outputs created.
+   * LoopMIDI adds an integer after the output names, so on Windows we'll loop
+   * through to find a similarly named output to attatch to.
+   */
+  protected getPlatformMidiOutput() {
+    if (os.platform() === 'darwin') {
+      return new Output(this.config.controller.midiName, true);
+
+    } else if (os.platform() === 'win32') {
+      // Find an output that starts with the config name.
+      const outputName = getOutputs().find((name: string) =>
+          name.startsWith(this.config.controller.midiName));
+
+      if (!outputName) {
+        throw new Error('No loopMIDI named output found for ' +
+            this.config.controller.midiName);
+      }
+
+      return new Output(outputName);
+
+    } else {
+      throw new Error('Untested platform.');
+    }
   }
 }
 

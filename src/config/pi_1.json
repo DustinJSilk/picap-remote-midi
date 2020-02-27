@@ -5,6 +5,7 @@
   "controller": {
     "name": "pi_1",
     "type": "pi",
-    "midiName": "Pi Drum 1"
+    "midiName": "Pi Drum 1",
+    "light": "Spot"
   }
 }

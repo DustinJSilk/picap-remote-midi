@@ -2,7 +2,7 @@ import { logger } from '@shared';
 import { OK } from 'http-status-codes';
 import { Request, Response, Router, Express } from 'express';
 import { serverConfig } from '../config';
-import { PiHandler } from 'src/midi_handlers/pi_base';
+import { PiHandler } from 'src/device_handlers/pi_base';
 
 export class MidiServerController {
   private router = Router();

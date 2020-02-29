@@ -1,7 +1,6 @@
 import netList from 'network-list';
 import { logger } from '@shared';
 import io from 'socket.io-client';
-import { debounce } from 'ts-debounce';
 import { serverConfig, config } from '../config';
 import fetch from 'node-fetch';
 
@@ -35,7 +34,7 @@ export const KNOWN_IPS: string[] = [
 /** Known MAC addresses to search through first. */
 export const KNOWN_MACS: string[] = [];
 
-export const DEBOUNCE_TIME = 100;
+export const DEBOUNCE_TIME = 10;
 
 export class MidiServerApi {
   /** IP Address of the MIDI server. */
@@ -47,12 +46,9 @@ export class MidiServerApi {
   /** The socket connection. */
   private io: SocketIOClient.Socket;
 
-  // Debounce sending messages.
-  private debouncedSend = debounce(this.send.bind(this), DEBOUNCE_TIME);
-
   sendMessage(index: number, type: string) {
     if (this.isConnected) {
-      this.debouncedSend({
+      this.send({
         id: config.controller.name,
         index,
         type,
@@ -135,7 +131,7 @@ export class MidiServerApi {
           return device;
         }
       } catch(err) {
-        console.log('No server found at ip: ', device.ip);
+        logger.log('warn', 'No server found at ip: ' + device.ip);
       }
     }
   }

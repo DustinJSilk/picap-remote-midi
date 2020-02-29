@@ -1,8 +1,8 @@
 import nodeHueApi from 'node-hue-api';
 import { logger } from '@shared';
 import hueConfig from '../config/hue.json';
-import { shareReplay, map, mergeMap, tap } from 'rxjs/operators';
-import { Observable, from, of, combineLatest } from 'rxjs';
+import { shareReplay, map, mergeMap, tap, filter, retryWhen, delayWhen } from 'rxjs/operators';
+import { Observable, from, of, combineLatest, iif, timer } from 'rxjs';
 import convert from 'color-convert';
 
 const v3 = nodeHueApi.v3;
@@ -11,6 +11,15 @@ const LightState = v3.lightStates.LightState;
 
 const APP = 'interactive-room';
 const DEVICE = 'server-control';
+
+export declare interface IpSearchResult {
+  ipaddress: string;
+}
+
+export declare interface HueUser {
+  username: string;
+  clientkey: string;
+}
 
 export class HueBridge {
   private lights = {}
@@ -71,40 +80,62 @@ export class HueBridge {
   private getIpAddress(): Observable<string> {
     return from(v3.discovery.nupnpSearch())
         .pipe(
-          map(results =>{
-            // @ts-ignore
-            return results[0].ipaddress as string;
+          map(res => {
+            const results = (res as IpSearchResult[]);
+            if (results.length) {
+              return (results as IpSearchResult[])[0].ipaddress;
+            } else {
+              throw new Error();
+            }
           }),
+          retryWhen(errors =>
+            errors.pipe(
+              tap(() => logger.log('error', `Can't Hue Bridge on network`)),
+              delayWhen(() => timer(10000)),
+            )
+          ),
+          // Add retryWhen
           shareReplay(1),
         );
   }
 
   /** Gets or create a user to control your lighting setup with. */
-  private getUser() {
+  private getUser(): Observable<HueUser|null> {
     if (hueConfig.user) {
       return of(hueConfig.user);
     }
 
     return this.ip$.pipe(
-      mergeMap(ip => from(hueApi.createLocal(ip).connect())),
-      mergeMap(unauthedApi => from(unauthedApi.users.createUser(APP, DEVICE))),
-      tap(user => {
-        /**
-         * TODO: Just automatically write this data to file. But why do we even
-         * have to authenticate when literally anyone can create a new user.
-         * Wtf is the point in this. FFS Philips let me do my shit already.
-         */
-        logger.log('info', 'New Hue Brudge user created.');
-        logger.log('info', 'Store these credentials in the hue_config file');
-        logger.log('info', JSON.stringify(user));
-      }),
-      shareReplay(1),
+      mergeMap(ip =>
+        iif(
+          () => ip === null,
+          of(null),
+          of().pipe(
+            mergeMap(() => from(hueApi.createLocal(ip as string).connect())),
+            mergeMap(unauthedApi => from(unauthedApi.users.createUser(APP, DEVICE))),
+            tap(user => {
+              /**
+               * TODO: Just automatically write this data to file. But why do we even
+               * have to authenticate when literally anyone can create a new user.
+               * Wtf is the point in this. FFS Philips let me do my shit already.
+               */
+              logger.log('info', 'New Hue Brudge user created.');
+              logger.log('info', 'Store these credentials in the hue_config file');
+              logger.log('info', JSON.stringify(user));
+            }),
+            map(user => user as HueUser),
+            shareReplay(1),
+          ),
+        )
+      ),
     );
   }
 
   /** Creates an API tunnel with the bridge. */
   private getApi() {
     return combineLatest(this.ip$, this.user$).pipe(
+      filter(res => res[0] !== null && res[1] !== null),
+      map(res => res[0] as string && res[1] as HueUser),
       mergeMap(res => from(hueApi.createLocal(res[0]).connect(res[1].username))),
     );
   }

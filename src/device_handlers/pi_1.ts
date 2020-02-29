@@ -16,11 +16,9 @@ export default class Pi extends PiBase implements PiHandler {
     const lastTouch = this.touchTimes[data.index];
     const timeDiff = Math.abs(Date.now() - lastTouch);
 
-    if (timeDiff > 100) {
-      this.sendNote(data.index);
+    this.sendNote(data.index);
 
-      const hue = data.index / 11;
-      this.light.setHue(hue);
-    }
+    const hue = data.index / 11;
+    this.light.setHue(hue);
   }
 }

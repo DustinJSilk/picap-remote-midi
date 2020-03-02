@@ -4,6 +4,7 @@
   "HOST": "localhost",
   "controller": {
     "name": "pi_3",
-    "type": "pi"
+    "type": "pi",
+    "midiName": "Pi filter"
   }
 }

@@ -135,8 +135,7 @@ export class HueBridge {
   private getApi() {
     return combineLatest(this.ip$, this.user$).pipe(
       filter(res => res[0] !== null && res[1] !== null),
-      map(res => res[0] as string && res[1] as HueUser),
-      mergeMap(res => from(hueApi.createLocal(res[0]).connect(res[1].username))),
+      mergeMap(res => from(hueApi.createLocal(res[0] as string).connect((res[1] as HueUser).username))),
     );
   }
 }

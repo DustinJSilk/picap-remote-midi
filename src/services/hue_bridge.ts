@@ -39,6 +39,7 @@ export class HueBridge {
 
     const state = new LightState()
       .on(true)
+      .brightness(100)
       .hsl(...hsb);
 
     return this.setLightState(name, state);
@@ -50,6 +51,8 @@ export class HueBridge {
    */
   public setHue(name: string, value: number) {
     const state = new LightState()
+      .on(true)
+      .brightness(100)
       .hue(value * 65535);
 
     return this.setLightState(name, state);

@@ -3,6 +3,8 @@ import { logger } from '@shared';
 import { fork } from 'child_process';
 import path from 'path';
 import os from 'os';
+import { defer } from 'rxjs';
+import { retry } from 'rxjs/operators';
 
 export class PiController {
   private midiServer = new MidiServerApi();
@@ -10,7 +12,10 @@ export class PiController {
   constructor() {
     logger.log('info', 'Starting pi controller');
 
-    this.midiServer.findMidiServer();
+    defer(() => this.midiServer.findMidiServer())
+        .pipe(retry(99999))
+        .subscribe(() => this.midiServer.connect());
+
     this.launchTouchControllerProcess();
   }
 

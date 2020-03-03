@@ -88,11 +88,9 @@ export class MidiServerApi {
         throw new Error('No MIDI server found on network.');
       }
     }
-
-    await this.connect();
   }
 
-  private connect(): Promise<void> {
+  connect(): Promise<void> {
     return new Promise((resolve, reject) => {
       logger.log('info', 'Connecting to MIDI server');
       this.io = io(`http://${this.ipAddress}:${serverConfig.socketPort}`);

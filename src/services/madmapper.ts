@@ -4,16 +4,15 @@ import createSocket from '../shared/create_socket';
 export class MadMapper {
   private socket;
 
-  constructor() {
+  constructor(private name: string) {
     createSocket().then(socket => this.socket = socket);
   }
 
-  async sendMessage(name: string, ) {
+  async sendMessage(address: string, value = 1) {
     if (this.socket) {
-      const val = Math.floor(Math.random() * 2);
       const message = osc.toBuffer({
-        address: '/testing',
-        args: [val],
+        address: `${this.name}/${address}`,
+        args: [value],
       })
       await this.send(message)
     }

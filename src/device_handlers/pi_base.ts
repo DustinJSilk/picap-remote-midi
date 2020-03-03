@@ -3,11 +3,14 @@ import { Output, getOutputs } from 'easymidi';
 import { Subject } from 'rxjs';
 import { delay, tap } from 'rxjs/operators';
 import os from 'os';
+import { MadMapper } from '../services/madmapper';
 
 export class PiBase {
   private noteQueue = new Subject<number>();
 
   private output = this.getPlatformMidiOutput();
+
+  protected madMapper = new MadMapper(this.config.controller.name);
 
   constructor(protected config: ConfigFile) {
     // Close the MIDI output when the app quits.

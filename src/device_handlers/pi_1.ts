@@ -4,20 +4,30 @@ import { PiMessage } from '../services/midi_server_api';
 import { HueLight } from './hue_light';
 
 export default class Pi extends PiBase implements PiHandler {
-  private touchTimes = ([...Array(12).fill(0)]);
-
   private light = new HueLight('Spot');
+
+  private drums = [
+    [9, 10, 11],
+    [8, 6, 7],
+  ];
 
   constructor() {
     super(config);
   }
 
   onMessage(data: PiMessage) {
-    const lastTouch = this.touchTimes[data.index];
-    const timeDiff = Math.abs(Date.now() - lastTouch);
-
+    // Send midi note
     this.sendNote(data.index);
 
+    // Send OSC message. Turn off all animations in row and turn on new item.
+    const row = this.drums.find(r => r.includes(data.index));
+
+    if (row) {
+      row.forEach(item => this.madMapper.sendMessage(`${item}`, 0));
+      this.madMapper.sendMessage(`${data.index}`, 1);
+    }
+
+    // Send Philips Hue lights message
     const hue = data.index / 11;
     this.light.setHue(hue);
   }

@@ -1,5 +1,5 @@
-import { MidiServerApi, TouchType } from 'src/services/midi_server_api';
-import { logger } from '@shared';
+import { MidiServerApi, TouchType } from '../services/midi_server_api';
+import { logger } from '../shared';
 import { fork } from 'child_process';
 import path from 'path';
 import os from 'os';

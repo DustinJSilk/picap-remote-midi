@@ -1,5 +1,5 @@
 import netList from 'network-list';
-import { logger } from '@shared';
+import { logger } from '../shared';
 import io from 'socket.io-client';
 import { serverConfig, config } from '../config';
 import fetch from 'node-fetch';

@@ -1,5 +1,5 @@
 import nodeHueApi from 'node-hue-api';
-import { logger } from '@shared';
+import { logger } from '../shared';
 import hueConfig from '../config/hue.json';
 import { shareReplay, map, mergeMap, tap, filter, retryWhen, delayWhen } from 'rxjs/operators';
 import { Observable, from, of, combineLatest, iif, timer } from 'rxjs';

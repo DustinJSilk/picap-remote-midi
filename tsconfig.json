@@ -16,17 +16,6 @@
     // Too lazy to manually add new d.ts files.
     "noImplicitAny": false,
     "strictPropertyInitialization": false,
-    "paths": {
-      "@entities": [
-        "src/entities"
-      ],
-      "@shared": [
-        "src/shared"
-      ],
-      "@server": [
-        "src/Server"
-      ]
-    },
     "types": [
       "node"
     ],

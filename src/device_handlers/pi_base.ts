@@ -23,6 +23,14 @@ export class PiBase {
       ).subscribe();
   }
 
+  protected sendFilter(controller: number, value: number) {
+    this.output.send('cc', {
+      controller,
+      value,
+      channel: 0,
+    })
+  }
+
   protected sendNote(note: number) {
     this.noteQueue.next(note);
   }

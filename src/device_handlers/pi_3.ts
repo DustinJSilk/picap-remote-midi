@@ -1,7 +1,10 @@
 import { PiBase, PiHandler } from './pi_base';
 import config from '../config/pi_3.json';
-import { PiMessage } from '../services/midi_server_api';
+import { PiMessage, TouchType } from '../services/midi_server_api';
 import { HueLight } from './hue_light';
+
+/** The MIDI controller ID. */
+const FILTER_CONTROLLER_ID = 0;
 
 export default class Pi extends PiBase implements PiHandler {
   private light = new HueLight('Swipe');
@@ -14,11 +17,13 @@ export default class Pi extends PiBase implements PiHandler {
   }
 
   onMessage(data: PiMessage) {
-    const value = this.map.indexOf(data.index) / this.map.length * 127;
+    if (data.type === TouchType.TOUCH) {
+      const value = this.map.indexOf(data.index) / this.map.length * 127;
 
-    this.sendFilter(0, value);
+      this.sendFilter(FILTER_CONTROLLER_ID, value);
 
-    const hue = data.index / 11;
-    this.light.setHue(hue);
+      const hue = data.index / 11;
+      this.light.setHue(hue);
+    }
   }
 }

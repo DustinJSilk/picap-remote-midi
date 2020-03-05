@@ -1,6 +1,11 @@
 import commandLineArgs from 'command-line-args';
 import { ConfigFile, ServerConfig } from './typings';
 
+/**
+ * TODO: We don't need config files, we could just put the config in each device
+ * handler class.
+ */
+
 // Setup command line options
 const options = commandLineArgs([
   {

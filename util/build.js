@@ -1,7 +1,7 @@
 const fs = require('fs-extra');
 const childProcess = require('child_process');
 
-
+/** TODO: Fix build scripts. */
 try {
     // Remove current build
     fs.removeSync('./dist/');

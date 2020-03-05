@@ -34,8 +34,6 @@ export const KNOWN_IPS: string[] = [
 /** Known MAC addresses to search through first. */
 export const KNOWN_MACS: string[] = [];
 
-export const DEBOUNCE_TIME = 10;
-
 export class MidiServerApi {
   /** IP Address of the MIDI server. */
   private ipAddress: string;

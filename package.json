@@ -35,7 +35,7 @@
     "node-hue-api": "^4.0.5",
     "osc-min": "^1.1.2",
     "rxjs": "^6.5.4",
-    "socket.io": "^2.3.0",
+    "socket.io": "^2.5.0",
     "socket.io-client": "^2.3.0",
     "winston": "^3.2.1"
   },
